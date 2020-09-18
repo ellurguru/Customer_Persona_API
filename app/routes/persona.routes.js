@@ -8,6 +8,8 @@ module.exports = app => {
   router.get("/ids/",cust_persona.listcid);
   router.get("/ids/:client_id",cust_persona.cid);
   router.get("/getmapdetails/",cust_persona.getmapdetails);
+  router.get("/top5/:CLIENT_ID",cust_persona.categorytop5);
+  router.get("/top10/:CLIENT_ID",cust_persona.categorytop10);
 
 
 

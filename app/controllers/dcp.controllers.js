@@ -44,10 +44,28 @@ connection.query('select client_id,first,last,email from persona_demographics',f
   });
 };
 
-
+//Get transaction details for leaflet map
 exports.getmapdetails = (req, res) => {
   connection.query('SELECT TRANS_LATITUDE,TRANS_LONGITUDE,CATEGORY FROM mypersonadb.persona_weighted_transaction limit 50',function (error, results, fields) {
    if (error) throw error;
    res.end(JSON.stringify(results));
  });
 };
+
+//Get top 5 categories to display in dashboard widget
+exports.categorytop5 = (req, res) => {
+  connection.query('SELECT NAME,CATEGORY as CATEGORY,CLIENT_ID,sum(AMOUNT) as AMOUNT FROM persona_weighted_transaction where CLIENT_ID=? GROUP BY CATEGORY order by sum(AMOUNT) desc limit 5',[req.params.CLIENT_ID],function (error, results, fields) {
+   if (error) throw error;
+   res.end(JSON.stringify(results));
+ });
+};
+
+//Get top 10 categories to display in dashboard widget
+exports.categorytop10 = (req, res) => {
+  connection.query('SELECT NAME,CATEGORY,CLIENT_ID,sum(AMOUNT) as AMOUNT FROM persona_weighted_transaction where CLIENT_ID=? GROUP BY CATEGORY order by sum(AMOUNT) desc limit 10',[req.params.CLIENT_ID],function (error, results, fields) {
+   if (error) throw error;
+   res.end(JSON.stringify(results));
+ });
+};
+
+
