@@ -51,12 +51,6 @@ exports.listall = (req, res) => {
       res.end(JSON.stringify(results));
     });
   };
-  exports.listcid1 = (req, res) => {
-     connection.query('select client_id,first from demographics_with_product_id ',function (error, results, fields) {
-      if (error) throw error;
-      res.end(JSON.stringify(results));
-    });
-  };
   exports.cid = (req, res) => {
      connection.query('select client_id from demographics_with_product_id where client_id=?', [req.params.client_id],function (error, results, fields) {
       if (error) throw error;
@@ -65,21 +59,20 @@ exports.listall = (req, res) => {
   };
   
   exports.categorytop5 = (req, res) => {
-    connection.query('SELECT TRANS_LATITUDE,TRANS_LONGITUDE,BILLING_PLACE,CATEGORY,CLIENT_ID,DATE_FORMAT(TRANSACTION_DATE,"%Y-%m-%d") as TRANSACTION_DATE,sum(AMOUNT) as AMOUNT,max(AMOUNT) as MAX_AMOUNT FROM transaction where CLIENT_ID=? and TRANSACTION_DATE >= ? AND TRANSACTION_DATE <= ? GROUP BY CATEGORY order by sum(AMOUNT) desc limit 5',[req.params.CLIENT_ID,req.params.FromDate,req.params.ToDate],function (error, results, fields) {
-     //connection.query('SELECT TRANS_LATITUDE,TRANS_LONGITUDE,BILLING_PLACE,CATEGORY,CLIENT_ID,DATE_FORMAT(TRANSACTION_DATE,"%Y-%m-%d") as TRANSACTION_DATE,sum(AMOUNT) as AMOUNT FROM transaction where CLIENT_ID=? GROUP BY CATEGORY order by sum(AMOUNT) desc limit 5',[req.params.CLIENT_ID],function (error, results, fields) { 
-    if (error) 
-     {
-       console.log('categorytop5');
-       throw error;
-     }
-     
-     res.end(JSON.stringify(results));
-   });
- };
+     connection.query('SELECT TRANS_LATITUDE,TRANS_LONGITUDE,BILLING_PLACE,CATEGORY,CLIENT_ID,DATE_FORMAT(TRANSACTION_DATE,"%Y-%m-%d") as TRANSACTION_DATE,sum(AMOUNT) as AMOUNT FROM transaction where CLIENT_ID=? and TRANSACTION_DATE >= ? AND TRANSACTION_DATE <= ? GROUP BY CATEGORY order by sum(AMOUNT) desc limit 5',[req.params.CLIENT_ID,req.params.FromDate,req.params.ToDate],function (error, results, fields) {
+      //connection.query('SELECT TRANS_LATITUDE,TRANS_LONGITUDE,BILLING_PLACE,CATEGORY,CLIENT_ID,DATE_FORMAT(TRANSACTION_DATE,"%Y-%m-%d") as TRANSACTION_DATE,sum(AMOUNT) as AMOUNT FROM transaction where CLIENT_ID=? GROUP BY CATEGORY order by sum(AMOUNT) desc limit 5',[req.params.CLIENT_ID],function (error, results, fields) { 
+     if (error) 
+      {
+        console.log('categorytop5');
+        throw error;
+      }
+      
+      res.end(JSON.stringify(results));
+    });
+  };
   
   exports.mapplot = (req, res) => {
-     //connection.query('SELECT TRANS_LATITUDE,TRANS_LONGITUDE,BILLING_PLACE,CATEGORY,CLIENT_ID,DATE_FORMAT(TRANSACTION_DATE,"%Y-%m-%d") as TRANSACTION_DATE,AMOUNT FROM transaction where CLIENT_ID=? and TRANSACTION_DATE >= date_sub(CURDATE(), interval 3 year)',[req.params.CLIENT_ID],function (error, results, fields) {
-     connection.query('SELECT TRANS_LATITUDE,TRANS_LONGITUDE,BILLING_PLACE,CATEGORY,CLIENT_ID,DATE_FORMAT(TRANSACTION_DATE,"%Y-%m-%d") as TRANSACTION_DATE,AMOUNT FROM transaction where CLIENT_ID=? and TRANSACTION_DATE >= ? AND TRANSACTION_DATE <= ?',[req.params.CLIENT_ID,req.params.FromDate,req.params.ToDate],function (error, results, fields) { 
+     connection.query('SELECT TRANS_LATITUDE,TRANS_LONGITUDE,BILLING_PLACE,CATEGORY,CLIENT_ID,TRANSACTION_DATE,AMOUNT FROM transaction where CLIENT_ID=?',[req.params.CLIENT_ID],function (error, results, fields) {
       if (error) throw error;
       res.end(JSON.stringify(results));
     });
@@ -93,16 +86,28 @@ exports.listall = (req, res) => {
     });
   };
   
+  exports.login= (req, res) => {
+     var client_id = request.body.client_id;
+    if (client_id) {
+      connection.query('SELECT * FROM demographics_with_product_id WHERE client_id = ?', [client_id], function(error, results, fields) {
+        if (results.length > 0) {
+          request.session.loggedin = true;
+          request.session.client_id = client_id;
+          response.redirect('/persona');
+        } else {
+          response.send('Incorrect Username and/or Password!');
+        }     
+        response.end();
+      });
+    } else {
+      response.send('Please enter Username and Password!');
+      response.end();
+    }
+  };
+  
   exports.getmapdetails = (req, res) => {
     connection.query('SELECT TRANS_LATITUDE,TRANS_LONGITUDE,CATEGORY FROM persona_weighted_transaction limit 50',function (error, results, fields) {
      if (error) throw error;
      res.end(JSON.stringify(results));
    });
-  };
-  
-  exports.categorytop5withdate = (req, res) => {
-     connection.query('SELECT TRANS_LATITUDE,TRANS_LONGITUDE,BILLING_PLACE,CATEGORY,CLIENT_ID,DATE_FORMAT(TRANSACTION_DATE,"%Y-%m-%d") as TRANSACTION_DATE,sum(AMOUNT) as AMOUNT FROM transaction where CLIENT_ID=? GROUP BY CATEGORY order by sum(AMOUNT) desc limit 5',[req.params.CLIENT_ID],function (error, results, fields) {
-      if (error) throw error;
-      res.end(JSON.stringify(results));
-    });
   };
