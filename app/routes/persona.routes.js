@@ -12,9 +12,9 @@ module.exports = app => {
   router.get("/ids/:client_id",cust_persona.cid);
   router.get("/top5/:CLIENT_ID/:FromDate/:ToDate",cust_persona.categorytop5); 
   router.get("/top10/:CLIENT_ID",cust_persona.categorytop10);
-  router.get("/getmapdetails",cust_persona.getmapdetails);
-  router.get("/map/:CLIENT_ID/:FromDate/:ToDate",cust_persona.mapplot); 
+  router.get("/getmapdetails",cust_persona.getmapdetails); 
   router.get("/top5date/:CLIENT_ID",cust_persona.categorytop5withdate);
+  router.get("/map/:CLIENT_ID/:FromDate/:ToDate",cust_persona.mapplot); 
   router.get("/child/:CLIENT_ID/:FromDate/:ToDate",cust_persona.childnodes); 
 
  /* router.get("/published", tutorials.findAllPublished);

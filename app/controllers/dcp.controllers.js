@@ -65,8 +65,7 @@ exports.listall = (req, res) => {
   };
   
   exports.categorytop5 = (req, res) => {
-    connection.query('SELECT TRANS_LATITUDE,TRANS_LONGITUDE,BILLING_PLACE,CATEGORY,CLIENT_ID,DATE_FORMAT(TRANSACTION_DATE,"%Y-%m-%d") as TRANSACTION_DATE,sum(AMOUNT) as AMOUNT,max(AMOUNT) as MAX_AMOUNT FROM transaction where CLIENT_ID=? and TRANSACTION_DATE >= ? AND TRANSACTION_DATE <= ? GROUP BY CATEGORY order by sum(AMOUNT) desc limit 5',[req.params.CLIENT_ID,req.params.FromDate,req.params.ToDate],function (error, results, fields) {
-     //connection.query('SELECT TRANS_LATITUDE,TRANS_LONGITUDE,BILLING_PLACE,CATEGORY,CLIENT_ID,DATE_FORMAT(TRANSACTION_DATE,"%Y-%m-%d") as TRANSACTION_DATE,sum(AMOUNT) as AMOUNT FROM transaction where CLIENT_ID=? GROUP BY CATEGORY order by sum(AMOUNT) desc limit 5',[req.params.CLIENT_ID],function (error, results, fields) { 
+    connection.query('SELECT TRANS_LATITUDE,TRANS_LONGITUDE,BILLING_PLACE,CATEGORY,CLIENT_ID,DATE_FORMAT(TRANSACTION_DATE,"%Y-%m-%d") as TRANSACTION_DATE,sum(AMOUNT) as AMOUNT FROM transaction where CLIENT_ID=? and TRANSACTION_DATE >= ? AND TRANSACTION_DATE <= ? GROUP BY CATEGORY order by sum(AMOUNT) desc limit 5',[req.params.CLIENT_ID,req.params.FromDate,req.params.ToDate],function (error, results, fields) {
     if (error) 
      {
        console.log('categorytop5');
@@ -76,22 +75,20 @@ exports.listall = (req, res) => {
      res.end(JSON.stringify(results));
    });
  };
-  
-  exports.mapplot = (req, res) => {
-     //connection.query('SELECT TRANS_LATITUDE,TRANS_LONGITUDE,BILLING_PLACE,CATEGORY,CLIENT_ID,DATE_FORMAT(TRANSACTION_DATE,"%Y-%m-%d") as TRANSACTION_DATE,AMOUNT FROM transaction where CLIENT_ID=? and TRANSACTION_DATE >= date_sub(CURDATE(), interval 3 year)',[req.params.CLIENT_ID],function (error, results, fields) {
-     connection.query('SELECT TRANS_LATITUDE,TRANS_LONGITUDE,BILLING_PLACE,CATEGORY,CLIENT_ID,DATE_FORMAT(TRANSACTION_DATE,"%Y-%m-%d") as TRANSACTION_DATE,AMOUNT FROM transaction where CLIENT_ID=? and TRANSACTION_DATE >= ? AND TRANSACTION_DATE <= ?',[req.params.CLIENT_ID,req.params.FromDate,req.params.ToDate],function (error, results, fields) { 
-      if (error) throw error;
-      res.end(JSON.stringify(results));
-    });
-  };
 
-  exports.childnodes = (req, res) => {
-    //SELECT BILLING_PLACE,CATEGORY FROM (SELECT *, @count := IF(@current_category = CATEGORY, @count + 1, 1) AS count,@current_category := CATEGORY FROM transaction ORDER BY CATEGORY, TRANSACTION_DATE>= date_sub(CURDATE(), interval 3 year)) ranked WHERE count <= 2;
-       connection.query('select CLIENT_ID,CATEGORY,BILLING_PLACE,AMOUNT,TRANSACTION_DATE from (SELECT CLIENT_ID,CATEGORY,BILLING_PLACE,AMOUNT,TRANSACTION_DATE,@product_rank := IF(@current_product = CATEGORY, @product_rank + 1, 1) AS product_rank,@current_product := CATEGORY FROM transaction  where CLIENT_ID=? and TRANSACTION_DATE>=? and TRANSACTION_DATE<=? ORDER BY CATEGORY, AMOUNT desc) ranked_rows where product_rank=3',[req.params.CLIENT_ID,req.params.FromDate,req.params.ToDate],function (error, results, fields) { 
-        if (error) throw error;
-        res.end(JSON.stringify(results));
-      });
-    };
+exports.mapplot = (req, res) => {
+    connection.query('SELECT TRANS_LATITUDE,TRANS_LONGITUDE,BILLING_PLACE,CATEGORY,CLIENT_ID,DATE_FORMAT(TRANSACTION_DATE,"%Y-%m-%d") as TRANSACTION_DATE,AMOUNT FROM transaction where CLIENT_ID=? and TRANSACTION_DATE >= ? AND TRANSACTION_DATE <= ?',[req.params.CLIENT_ID,req.params.FromDate,req.params.ToDate],function (error, results, fields) { 
+     if (error) throw error;
+     res.end(JSON.stringify(results));
+   });
+ };
+exports.childnodes = (req, res) => {
+ //SELECT BILLING_PLACE,CATEGORY FROM (SELECT *, @count := IF(@current_category = CATEGORY, @count + 1, 1) AS count,@current_category := CATEGORY FROM transaction ORDER BY CATEGORY, TRANSACTION_DATE>= date_sub(CURDATE(), interval 3 year)) ranked WHERE count <= 2;
+    connection.query('select CLIENT_ID,CATEGORY,BILLING_PLACE,AMOUNT,TRANSACTION_DATE from (SELECT CLIENT_ID,CATEGORY,BILLING_PLACE,AMOUNT,TRANSACTION_DATE,@product_rank := IF(@current_product = CATEGORY, @product_rank + 1, 1) AS product_rank,@current_product := CATEGORY FROM transaction  where CLIENT_ID=? and TRANSACTION_DATE>=? and TRANSACTION_DATE<=? ORDER BY CATEGORY, AMOUNT desc) ranked_rows where product_rank<=5',[req.params.CLIENT_ID,req.params.FromDate,req.params.ToDate],function (error, results, fields) { 
+     if (error) throw error;
+     res.end(JSON.stringify(results));
+   });
+ };
 
   exports.categorytop10 = (req, res) => {
      connection.query('SELECT TRANS_LATITUDE,TRANS_LONGITUDE,BILLING_PLACE,CATEGORY,client_id,DATE,sum(AMOUNT) as AMOUNT FROM persona_weighted_transaction where CLIENT_ID=? GROUP BY CATEGORY order by sum(AMOUNT) desc limit 10',[req.params.CLIENT_ID],function (error, results, fields) {
