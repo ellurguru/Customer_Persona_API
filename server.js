@@ -1,7 +1,7 @@
 var http = require("http");
 var express = require('express');
 var app = express();
-var mysql      = require('mysql2');
+var mysql      = require('mysql');
 var bodyParser = require('body-parser');
 
 app.use(bodyParser.json());      
